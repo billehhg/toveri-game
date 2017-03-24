@@ -1,6 +1,10 @@
 -- This happens when game is loaded
 function love.load()
-  --loads the seperate scripts
+  --this is the background
+  bgImage = love.graphics.newImage('grassbg.png')
+  bgClr1,bgClr2,bgClr3=115,230,143
+
+ --loads the seperate scripts
   require("scripts.player")
 
   --this gets the window dimensions
@@ -39,22 +43,14 @@ function love.update(dt)
 end
 
 --this draws the screen every second
-
 function love.draw()
+
   --this function is in scripts/player
-  if offscreen ~= nil then offscreen,x,y=offScreenSlide(x,y,h,w,width,height,offscreen) end
+  if offscreen ~= nil then offscreen,x,y=offScreenSlide(x,y,h,w,width,height,offscreen,bgClr1,bgClr2,bgClr3) end
 
-
-  --this is only here to show that the screen slides. It will be removed or replaced with actual graphics or something
-  love.graphics.setColor(224, 189, 65)
-  love.graphics.rectangle("fill", -width, 0, width, height)
-  love.graphics.setColor(189, 224, 65)
-  love.graphics.rectangle("fill", 0, -height, width, height)
-  love.graphics.setColor(65, 224, 141)
-  love.graphics.rectangle("fill", width, 0, width, height)
-  love.graphics.setColor(65, 165, 224)
-  love.graphics.rectangle("fill", 0, height, width, height)
---this is the end of the offscreen rectangles
+--this sets the background image
+  love.graphics.setColor(bgClr1,bgClr2,bgClr3)
+  love.graphics.draw(bgImage,0,0)
 
 --this function is in scripts/player
   mov=playerWalk(dir,mov)

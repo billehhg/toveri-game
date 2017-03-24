@@ -1,4 +1,4 @@
---this file contains all the scripts dealing with the game's main playable character. It will not contain persistant player characteristics.
+  --this file contains all the scripts dealing with the game's main playable character. It will not contain persistant player characteristics.
 
 --this controls player movement, storing which direction keys are pressed and the direction in which they are pressed.
 --The following function removes the keys when they're released
@@ -42,7 +42,7 @@ end
 
 --this slides the screen and moves the player to the other side when players leave screen
 
-function offScreenSlide(x,y,h,w,width,height,offscreen)
+function offScreenSlide(x,y,h,w,width,height,offscreen,bg1,bg2,bg3)
   --declares things at beginning of animation (how much to slide and whatnot)
   if offscreenx==nil then
     offscreenx=0
@@ -53,12 +53,27 @@ function offScreenSlide(x,y,h,w,width,height,offscreen)
       num=height/20
     end
   end
+
+  love.graphics.setColor(bg1,bg2,bg3)
   --slides the screen
-  if offscreen == "l" then offscreenx = offscreenx + 20 end
-  if offscreen == "r" then offscreenx = offscreenx - 20 end
-  if offscreen == "u" then offscreeny = offscreeny + 20 end
-  if offscreen == "d" then offscreeny = offscreeny - 20 end
+  if offscreen == "l" then
+    offscreenx = offscreenx + 20
+    bgx,bgy=-800,0
+  end
+  if offscreen == "r" then
+    offscreenx = offscreenx - 20
+    bgx,bgy=800,0
+  end
+  if offscreen == "u" then
+    offscreeny = offscreeny + 20
+    bgx,bgy=-0,-600
+  end
+  if offscreen == "d" then
+    offscreeny = offscreeny - 20
+    bgx,bgy=-0,600
+  end
   love.graphics.translate(offscreenx,offscreeny)
+  love.graphics.draw(bgImage,bgx,bgy)
   love.timer.sleep(1/200)
   num=num-1
   --keeps game paused while screen slides and ends slide once complete
