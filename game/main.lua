@@ -2,7 +2,9 @@
 function love.load()
   --this is the background
   bgImage = love.graphics.newImage('grassbg.png')
-  bgClr1,bgClr2,bgClr3=115,230,143
+  bgClr1,bgClr2,bgClr3=115,230,183
+  edgeForest = love.graphics.newImage('edgeforest.png')
+  edgeForestBack = love.graphics.newImage('edgeforestback.png')
 
  --loads the seperate scripts
   require("scripts.player")
@@ -11,10 +13,12 @@ function love.load()
   width, height = love.graphics.getDimensions()
 
   --this initiates character location, size and speed
-  x, y, w, h, pspeed = (width/2)-25, (height/2)-40, height/12, width/12, width/6
+  w, h, pspeed = width/12, height/7, width/6
+  x, y =  (width/2)-(w/2), (height/2)-(h/2)
 
   --current direction string. used to remember which direction keys are pressed and move in right order
   curdir=""
+  noGo=" "
   dir="d"
   mov="s1"
 end
@@ -38,7 +42,8 @@ end
 function love.update(dt)
   if gameIsPaused then return end
     --these functions are in scripts/player.lua
-  x,y,dir,mov = movePlayer(curdir,x,y,pspeed,dt)
+  noGo = checkEdgeForest(width,height,x,y,h,w,noGo)
+  x,y,dir,mov = movePlayer(curdir,noGo,x,y,pspeed,dt)
   if offscreen==nil then offscreen = offScreen(x,y,w,h,width,height) end
 end
 
@@ -51,12 +56,18 @@ function love.draw()
 --this sets the background image
   love.graphics.setColor(bgClr1,bgClr2,bgClr3)
   love.graphics.draw(bgImage,0,0)
+  love.graphics.draw(edgeForestBack,0,0)
 
 --this function is in scripts/player
   mov=playerWalk(dir,mov)
 
 --this draws the playable character
   love.graphics.rectangle("fill", x, y, w, h)
+
+  --this puts trees in front of player when he's behind them
+  love.graphics.setColor(bgClr1,bgClr2,bgClr3)
+  love.graphics.draw(edgeForest,0,0)
+
 end
 
 --this is run on close of the game. Not useful yet but will be nice when we need to remind people to save
