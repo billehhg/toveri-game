@@ -6,6 +6,17 @@ function love.load()
   edgeForest = love.graphics.newImage('edgeforest.png')
   edgeForestBack = love.graphics.newImage('edgeforestback.png')
 
+--this imports the photos for the player
+  playD = love.graphics.newImage('playerDown.png')
+  playDW = love.graphics.newImage('playerDownW.png')
+  playU = love.graphics.newImage('playerUp.png')
+  playUW = love.graphics.newImage('playerUpW.png')
+  playL = love.graphics.newImage('playerLeft.png')
+  playLW = love.graphics.newImage('playerLeftW.png')
+  playR = love.graphics.newImage('playerRight.png')
+  playRW = love.graphics.newImage('playerRightW.png')
+  img=playD
+
  --loads the seperate scripts
   require("scripts.player")
 
@@ -62,7 +73,7 @@ function love.draw()
   mov=playerWalk(dir,mov)
 
 --this draws the playable character
-  love.graphics.rectangle("fill", x, y, w, h)
+  love.graphics.draw(img,x,y,0,w/200,h/300)
 
   --this puts trees in front of player when he's behind them
   love.graphics.setColor(bgClr1,bgClr2,bgClr3)

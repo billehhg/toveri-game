@@ -146,56 +146,56 @@ function playerWalk(dir,mov)
   if dir == 'u' then
     if mov:sub(1,1) == 'm' then
       if wnum <= 5 then
-        love.graphics.setColor(0, 100, 0)
+        img=playU
         return mov:gsub(wnum,wnum+1)
-      else
-        love.graphics.setColor(0, 255, 0)
-        return mov:gsub(wnum,1)
+      elseif wnum < 10 then
+        img=playUW
+        return mov:gsub(wnum,wnum+1)
       end
     else
-      love.graphics.setColor(0, 200, 0)
+      img=playU
       return mov
     end
   end
   if dir == 'd' then
     if mov:sub(1,1) == 'm' then
       if wnum <= 5 then
-        love.graphics.setColor(0, 50, 100)
+        img=playD
         return mov:gsub(wnum,wnum+1)
-      else
-        love.graphics.setColor(0, 50, 50)
-        return mov:gsub(wnum,1)
+      elseif wnum < 10 then
+        img=playDW
+        return mov:gsub(wnum,wnum+1)
       end
     else
-      love.graphics.setColor(0, 50, 200)
+      img=playD
       return mov
     end
   end
   if dir == 'l' then
     if mov:sub(1,1) == 'm' then
       if wnum <= 5 then
-        love.graphics.setColor(100, 0, 0)
+        img=playL
         return mov:gsub(wnum,wnum+1)
-      else
-        love.graphics.setColor(50, 0, 0)
-        return mov:gsub(wnum,1)
+      elseif wnum < 10 then
+        img=playLW
+        return mov:gsub(wnum,wnum+1)
       end
     else
-      love.graphics.setColor(200, 0, 0)
+      img=playL
       return mov
     end
   end
   if dir == 'r' then
     if mov:sub(1,1) == 'm' then
       if wnum <= 5 then
-        love.graphics.setColor(100, 100, 100)
+        img=playR
         return mov:gsub(wnum,wnum+1)
-      else
-        love.graphics.setColor(50, 50, 50)
-        return mov:gsub(wnum,1)
+      elseif wnum < 10 then
+        img=playRW
+        return mov:gsub(wnum,wnum+1)
       end
     else
-      love.graphics.setColor(200, 200, 200)
+      img=playR
       return mov
     end
   end
