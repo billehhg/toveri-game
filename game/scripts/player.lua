@@ -19,41 +19,48 @@ function curDirRel(n,curdir)
   else  return curdir end
 end
 
---this keeps the player out of the forest
+--this keeps the player out of the forest. I'd prefer to code golf this but couldn't think of how to easily.
 function checkEdgeForest(width,height,x,y,h,w,noGo)
- local nG=""
-  local xX=width/10
+  local nG=""
+  local xX=width/12
+  local xDoor=((y+h) <= (height*.42) or (y+h) >= (height*.59))
+  local yDoor=(x <= (.42*width) or (x+w) >= (width*.6))
   if x <= xX then
-    if y <= (height/3) or (y+h) >= (height*.59) then
+    if xDoor then
       nG=nG.."a"
     else
-      nG=nG.."ws"
+      if ((y+h) <= (height*.45)) and ((x*1.1)<=xX) then nG=nG.."w" end
+      if ((y+h) >= (height*.53)) and ((x*1.1)<=xX) then nG=nG.."s" end
     end
   end
   if (x+w) >= (width-xX) then
-    if y <= (height/3) or y >= (height*.45) then
+    if xDoor then
       nG=nG.."d"
     else
-      nG=nG.."ws"
+      if (y+h) <= (height*.45) and (x+(w*.99))>=(width-xX) then nG=nG.."w" end
+      if (y+h) >= (height*.53) and (x+(w*.99))>=(width-xX) then nG=nG.."s" end
     end
   end
-  if y <= (height/10) then
-    if x <= (.44*width) or (x+w) >= (width*.56) then
+  if (y+h) <= (height/6) then
+    if yDoor then
       nG=nG .. "w"
     else
-      nG=nG.."ad"
+      if (x <= (.45*width)) and ((y+h)*.9)<=(height/7) then nG=nG..'a' end
+      if (x+w) >= (width*.59) and ((y+h)*.9)<=(height/7) then nG=nG..'d' end
     end
   end
   if (y+h) >= (height-(height/10)) then
-    if x <= (.44*width) or (x+w) >= (width*.56) then
+    if yDoor then
       nG=nG.."s"
     else
-      nG=nG.."ad"
+      if (x <= (.45*width)) and (y+(h*.9))>=(height-(height/10)) then nG=nG..'a' end
+      if (x+w) >= (width*.59) and (y+(h*.9))>=(height-(height/10)) then nG=nG..'d' end
     end
   end
   return nG
 end
---this assigns the players direction and movement based on the variable declared above
+
+--this assigns the players direction and movement based on 'curdir'
 
 function movePlayer(curdir,noGo,x,y,pspeed,dt)
   if curdir:sub(-1) == 'w' then

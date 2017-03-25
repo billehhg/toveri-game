@@ -24,7 +24,7 @@ function love.load()
   width, height = love.graphics.getDimensions()
 
   --this initiates character location, size and speed
-  w, h, pspeed = width/12, height/7, width/6
+  w, h, pspeed = width/14, height/9, width/6
   x, y =  (width/2)-(w/2), (height/2)-(h/2)
 
   --current direction string. used to remember which direction keys are pressed and move in right order
@@ -53,8 +53,8 @@ end
 function love.update(dt)
   if gameIsPaused then return end
     --these functions are in scripts/player.lua
-  noGo = checkEdgeForest(width,height,x,y,h,w,noGo)
   x,y,dir,mov = movePlayer(curdir,noGo,x,y,pspeed,dt)
+  noGo = checkEdgeForest(width,height,x,y,h,w,noGo)
   if offscreen==nil then offscreen = offScreen(x,y,w,h,width,height) end
 end
 
