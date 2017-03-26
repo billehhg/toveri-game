@@ -3,7 +3,7 @@
 --this controls player movement, storing which direction keys are pressed and the direction in which they are pressed.
 --The following function removes the keys when they're released
 
-function curDir(n,curdir)
+function curDir(n)
   if n == 'w' then    return curdir .. 'w'
   elseif n == 's' then    return curdir .. 's'
   elseif n == 'a' then    return curdir .. 'a'
@@ -11,7 +11,7 @@ function curDir(n,curdir)
   else  return curdir end
 end
 
-function curDirRel(n,curdir)
+function curDirRel(n)
   if n == 'w' then    return curdir:gsub('w','')
   elseif  n == 's' then    return curdir:gsub('s','')
   elseif  n == 'a' then    return curdir:gsub('a','')
@@ -20,30 +20,30 @@ function curDirRel(n,curdir)
 end
 
 --this keeps the player out of the forest. I'd prefer to code golf this but couldn't think of how to easily.
-function checkEdgeForest(width,height,x,y,h,w,noGo)
-  local nG=""
+function checkEdgeForest()
+  local nG=''
   local xX=width/12
   local xDoor=((y+h) <= (height*.42) or (y+h) >= (height*.59))
   local yDoor=(x <= (.42*width) or (x+w) >= (width*.6))
   if x <= xX then
     if xDoor then
-      nG=nG.."a"
+      nG=nG..'a'
     else
-      if ((y+h) <= (height*.45)) and ((x*1.1)<=xX) then nG=nG.."w" end
-      if ((y+h) >= (height*.53)) and ((x*1.1)<=xX) then nG=nG.."s" end
+      if ((y+h) <= (height*.45)) and ((x*1.1)<=xX) then nG=nG..'w' end
+      if ((y+h) >= (height*.53)) and ((x*1.1)<=xX) then nG=nG..'s' end
     end
   end
   if (x+w) >= (width-xX) then
     if xDoor then
-      nG=nG.."d"
+      nG=nG..'d'
     else
-      if (y+h) <= (height*.45) and (x+(w*.99))>=(width-xX) then nG=nG.."w" end
-      if (y+h) >= (height*.53) and (x+(w*.99))>=(width-xX) then nG=nG.."s" end
+      if (y+h) <= (height*.45) and (x+(w*.99))>=(width-xX) then nG=nG..'w' end
+      if (y+h) >= (height*.53) and (x+(w*.99))>=(width-xX) then nG=nG..'s' end
     end
   end
   if (y+h) <= (height/6) then
     if yDoor then
-      nG=nG .. "w"
+      nG=nG .. 'w'
     else
       if (x <= (.45*width)) and ((y+h)*.9)<=(height/7) then nG=nG..'a' end
       if (x+w) >= (width*.59) and ((y+h)*.9)<=(height/7) then nG=nG..'d' end
@@ -51,7 +51,7 @@ function checkEdgeForest(width,height,x,y,h,w,noGo)
   end
   if (y+h) >= (height-(height/10)) then
     if yDoor then
-      nG=nG.."s"
+      nG=nG..'s'
     else
       if (x <= (.45*width)) and (y+(h*.9))>=(height-(height/10)) then nG=nG..'a' end
       if (x+w) >= (width*.59) and (y+(h*.9))>=(height-(height/10)) then nG=nG..'d' end
@@ -62,7 +62,7 @@ end
 
 --this assigns the players direction and movement based on 'curdir'
 
-function movePlayer(curdir,noGo,x,y,pspeed,dt)
+function movePlayer(dt)
   if curdir:sub(-1) == 'w' then
     if string.match(noGo,'w')~='w' then y = y - (pspeed * dt) end
     dir = 'u'
@@ -85,20 +85,31 @@ function movePlayer(curdir,noGo,x,y,pspeed,dt)
   return x,y,dir,mov
 end
 
---this detects if player is offscreen
+--this detects if player is offscreen and tracks position on metamap
 
-function offScreen(x,y,w,h,width,height)
+function offScreen()
   local zw = 2*(w/3)
   local zh = 2*(h/3)
-  if (x+zw) <= 0 then return 'l' end
-  if ((x-zw) + w) >= width then  return 'r'  end
-  if (y+zh) <= 0 then  return 'u'  end
-  if ((y-zh) + h) >= height then return 'd'  end
+  local mapX = tonumber(mapLocale:sub(1,2))
+  local mapY = tonumber(mapLocale:sub(3,4))
+  if (x+zw) <= 0 then
+    return 'l',(mapX-1)..mapY
+  end
+  if ((x-zw) + w) >= width then
+    return 'r',(mapX+1)..mapY
+  end
+  if (y+zh) <= 0 then
+    return 'u',mapX..(mapY-1)
+  end
+  if ((y-zh) + h) >= height then
+    return 'd',mapX..(mapY+1)
+  end
+  return nil,mapX..mapY
 end
 
 --this slides the screen and moves the player to the other side when players leave screen
 
-function offScreenSlide(x,y,h,w,width,height,offscreen,bg1,bg2,bg3)
+function offScreenSlide(bg1,bg2,bg3)
   --declares things at beginning of animation (how much to slide and whatnot)
   if offscreenx==nil then
     offscreenx=0
@@ -148,15 +159,15 @@ end
 
 
 --this determines the animation to display for the player (standing, moving)
-function playerWalk(dir,mov)
+function playerWalk()
   wnum=tonumber(mov:sub(2,2))
   if dir == 'u' then
     if mov:sub(1,1) == 'm' then
       if wnum <= 5 then
-        img=playU
+        img=playU1
         return mov:gsub(wnum,wnum+1)
       elseif wnum < 10 then
-        img=playUW
+        img=playU2
         return mov:gsub(wnum,wnum+1)
       end
     else
@@ -167,10 +178,10 @@ function playerWalk(dir,mov)
   if dir == 'd' then
     if mov:sub(1,1) == 'm' then
       if wnum <= 5 then
-        img=playD
+        img=playD1
         return mov:gsub(wnum,wnum+1)
       elseif wnum < 10 then
-        img=playDW
+        img=playD2
         return mov:gsub(wnum,wnum+1)
       end
     else
