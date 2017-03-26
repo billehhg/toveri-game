@@ -77,7 +77,7 @@ function love.draw()
   mov=playerWalk()
 
 --this draws the playable character
-  love.graphics.setColor(255,255,255)
+  love.graphics.setColor(200,200,200)
   love.graphics.draw(img,x,y,0,w/200,h/300)
 
   --this puts trees in front of player when he's behind them
