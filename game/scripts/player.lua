@@ -22,39 +22,43 @@ end
 --this keeps the player out of the forest. I'd prefer to code golf this but couldn't think of how to easily.
 function checkEdgeForest()
   local nG=''
-  local xX=width/12
-  local xDoor=((y+h) <= (height*.42) or (y+h) >= (height*.59))
-  local yDoor=(x <= (.42*width) or (x+w) >= (width*.6))
+  local xX=width/11
+  local con1=.47*height
+  local con2=.58*height
+  local con3=.44*width
+  local con4=.54*width
+  local xDoor=((y+h) <= con1 or (y+h) >= con2)
+  local yDoor=(x <= con3 or (x+w) >= con4)
   if x <= xX then
     if xDoor then
       nG=nG..'a'
     else
-      if ((y+h) <= (height*.45)) and ((x*1.1)<=xX) then nG=nG..'w' end
-      if ((y+h) >= (height*.53)) and ((x*1.1)<=xX) then nG=nG..'s' end
+      if ((y+h) <= con1*1.01) and ((x*1.1)<=xX) then nG=nG..'w' end
+      if ((y+h) >= con2*.99) and ((x*1.1)<=xX) then nG=nG..'s' end
     end
   end
-  if (x+w) >= (width-xX) then
+  if (x+w) >= (width-(xX*1.2)) then
     if xDoor then
       nG=nG..'d'
     else
-      if (y+h) <= (height*.45) and (x+(w*.99))>=(width-xX) then nG=nG..'w' end
-      if (y+h) >= (height*.53) and (x+(w*.99))>=(width-xX) then nG=nG..'s' end
+      if (y+h) <= con1*1.01 and (x+(w*.99))>=(width-xX) then nG=nG..'w' end
+      if (y+h) >= con2*.99 and (x+(w*.99))>=(width-xX) then nG=nG..'s' end
     end
   end
-  if (y+h) <= (height/6) then
+  if (y+h) <= (height/5) then
     if yDoor then
       nG=nG .. 'w'
     else
-      if (x <= (.45*width)) and ((y+h)*.9)<=(height/7) then nG=nG..'a' end
-      if (x+w) >= (width*.59) and ((y+h)*.9)<=(height/7) then nG=nG..'d' end
+      if (x <= con3*1.01) and ((y+h)*.9)<=(height/7) then nG=nG..'a' end
+      if (x+w) >= con4*.99 and ((y+h)*.9)<=(height/7) then nG=nG..'d' end
     end
   end
   if (y+h) >= (height-(height/10)) then
     if yDoor then
       nG=nG..'s'
     else
-      if (x <= (.45*width)) and (y+(h*.9))>=(height-(height/10)) then nG=nG..'a' end
-      if (x+w) >= (width*.59) and (y+(h*.9))>=(height-(height/10)) then nG=nG..'d' end
+      if (x <= con3*1.01) and (y+(h*.9))>=(height-(height/10)) then nG=nG..'a' end
+      if (x+w) >= con4*.99 and (y+(h*.9))>=(height-(height/10)) then nG=nG..'d' end
     end
   end
   return nG
@@ -109,7 +113,7 @@ end
 
 --this slides the screen and moves the player to the other side when players leave screen
 
-function offScreenSlide(bg1,bg2,bg3)
+function offScreenSlide()
   --declares things at beginning of animation (how much to slide and whatnot)
   if offscreenx==nil then
     offscreenx=0
@@ -120,7 +124,7 @@ function offScreenSlide(bg1,bg2,bg3)
       num=height/20
     end
   end
-
+  getLocale()
   love.graphics.setColor(bg1,bg2,bg3)
   --slides the screen
   if offscreen == 'l' then
@@ -139,6 +143,7 @@ function offScreenSlide(bg1,bg2,bg3)
     offscreeny = offscreeny - 20
     bgx,bgy=-0,600
   end
+  love.graphics.setColor(bg1n,bg2n,bg3n)
   love.graphics.translate(offscreenx,offscreeny)
   love.graphics.draw(bgImage,bgx,bgy)
   love.graphics.draw(edgeForest,bgx,bgy)
@@ -147,6 +152,7 @@ function offScreenSlide(bg1,bg2,bg3)
   num=num-1
   --keeps game paused while screen slides and ends slide once complete
   if num == 0 then
+    bg1,bg2,bg3=bg1n,bg2n,bg3n
     local xx = offscreenx
     offscreenx=nil
     gameIsPaused=false

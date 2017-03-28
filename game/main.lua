@@ -2,7 +2,8 @@
 function love.load()
   --this is the background
   bgImage = love.graphics.newImage('backgroundImages/grassbg.png')
-  bgClr1,bgClr2,bgClr3=115,230,183
+  bg1,bg2,bg3=75,160,75
+  bg1n,bg2n,bg3n=115,230,183
   edgeForest = love.graphics.newImage('backgroundImages/edgeforest.png')
   edgeForestBack = love.graphics.newImage('backgroundImages/edgeforestback.png')
 
@@ -21,12 +22,15 @@ function love.load()
 
  --loads the seperate scripts
   require('scripts.player')
+  require('scripts.contents')
+  require('scripts.save')
 
   --this gets the window dimensions
   width, height = love.graphics.getDimensions()
 --vec3 hsv(float h,float s,float v) { return mix(vec3(1.),clamp((abs(fract(h+vec3(3.,2.,1.)/3.)*6.-3.)-1.),0.,1.),s)*v; }
   --this initiates character location, size and speed
-  w, h, baseSpeed = width/14, height/9, width*.2
+  pSizeMultiplier=1
+  w, h, baseSpeed = (width/14)*pSizeMultiplier, (height/9)*pSizeMultiplier, width*.2
   pspeed=baseSpeed*1
   x, y =  (width/2)-(w/2), (height/2)-(h/2)
 
@@ -36,6 +40,9 @@ function love.load()
   dir='d'
   mov='s1'
   mapLocale='4242'
+
+  --this function located in scripts/save loads the map
+  startTable()
 end
 
 --this will checked if you're focused on the window
@@ -45,6 +52,7 @@ function love.focus(f) gameIsPaused = not f end
 function love.keypressed(key)
   --this function is in scripts/player.lua
   curdir = curDir(key)
+  if key=='p' then gone=true end
 end
 
 function love.keyreleased(key)
@@ -66,10 +74,10 @@ end
 function love.draw()
   
   --this function is in scripts/player
-  if offscreen ~= nil then offscreen,x,y=offScreenSlide(bgClr1,bgClr2,bgClr3) end
+  if offscreen ~= nil then offscreen,x,y=offScreenSlide(bg1,bg2,bg3) end
 
 --this sets the background image
-  love.graphics.setColor(bgClr1,bgClr2,bgClr3)
+  love.graphics.setColor(bg1,bg2,bg3)
   love.graphics.draw(bgImage,0,0)
   love.graphics.draw(edgeForestBack,0,0)
 
@@ -77,17 +85,18 @@ function love.draw()
   mov=playerWalk()
 
 --this draws the playable character
-  love.graphics.setColor(200,200,200)
+  love.graphics.setColor(150,150,150)
   love.graphics.draw(img,x,y,0,w/200,h/300)
 
   --this puts trees in front of player when he's behind them
-  love.graphics.setColor(bgClr1,bgClr2,bgClr3)
+  love.graphics.setColor(bg1,bg2,bg3)
   love.graphics.draw(edgeForest,0,0)
-
 end
 
 --this is run on close of the game. Not useful yet but will be nice when we need to remind people to save
 
 function love.quit()
+  serialize (map)
+  if gone then love.filesystem.remove('map') end
   print('Thanks for playing! Come back soon!')
 end
