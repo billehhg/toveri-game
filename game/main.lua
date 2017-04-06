@@ -1,102 +1,110 @@
 -- This happens when game is loaded
 function love.load()
-  --this is the background
-  bgImage = love.graphics.newImage('backgroundImages/grassbg.png')
-  bg1,bg2,bg3=75,160,75
-  bg1n,bg2n,bg3n=115,230,183
-  edgeForest = love.graphics.newImage('backgroundImages/edgeforest.png')
-  edgeForestBack = love.graphics.newImage('backgroundImages/edgeforestback.png')
+ --loads the seperate scripts
+	require('scripts.player')
+	require('scripts.contents')
+	require('scripts.save')
+	require('scripts.boundaries')
+
+	--this gets the window dimensions
+	width, height = love.graphics.getDimensions()
+
+	--this is the background
+	bgImage = love.graphics.newImage('backgroundImages/grassbg.png')
+	edgeForest = love.graphics.newImage('backgroundImages/edgeforest.png')
+	edgeForestBack = love.graphics.newImage('backgroundImages/edgeforestback.png')
+	tree=love.graphics.newImage('backgroundImages/pinetree.png')
+	bg1,bg2,bg3=75,160,75
+	
+	--this function located in scripts/save loads the map and player data
+	startTable()
 
 --this imports the photos for the player
-  playD = love.graphics.newImage('playerImages/playerDown.png')
-  playD1 = love.graphics.newImage('playerImages/playerDown1.png')
-  playD2 = love.graphics.newImage('playerImages/playerDown2.png')
-  playU = love.graphics.newImage('playerImages/playerUp.png')
-  playU1 = love.graphics.newImage('playerImages/playerUp1.png')
-  playU2 = love.graphics.newImage('playerImages/playerUp2.png')
-  playL = love.graphics.newImage('playerImages/playerLeft.png')
-  playLW = love.graphics.newImage('playerImages/playerLeftW.png')
-  playR = love.graphics.newImage('playerImages/playerRight.png')
-  playRW = love.graphics.newImage('playerImages/playerRightW.png')
-  img=playD
+	loadPlayer(playerData.whichUko)
+	img=uko.d
 
- --loads the seperate scripts
-  require('scripts.player')
-  require('scripts.contents')
-  require('scripts.save')
+	sword={}
+	sword.pic = love.graphics.newImage('contents/sword.png')
+	sword.width,sword.height=sword.pic:getDimensions()
+	sword.posX,sword.posY=width/2,height*.65
+	sword.wid,sword.hei=width/55,height/9
+	sword.rotation=math.pi
 
-  --this gets the window dimensions
-  width, height = love.graphics.getDimensions()
---vec3 hsv(float h,float s,float v) { return mix(vec3(1.),clamp((abs(fract(h+vec3(3.,2.,1.)/3.)*6.-3.)-1.),0.,1.),s)*v; }
-  --this initiates character location, size and speed
-  pSizeMultiplier=1
-  w, h, baseSpeed = (width/14)*pSizeMultiplier, (height/9)*pSizeMultiplier, width*.2
-  pspeed=baseSpeed*1
-  x, y =  (width/2)-(w/2), (height/2)-(h/2)
+	--this initiates character location, size and speed
+	w, h, pspeed = (width/11)*playerData.size, (height/7)*playerData.size, width*.35*playerData.speed
+	x, y =	(width/2)-(w/2), (height/2)-(h/2)
 
-  --current direction string. used to remember which direction keys are pressed and move in right order
-  curdir=''
-  noGo=' '
-  dir='d'
-  mov='s1'
-  mapLocale='4242'
+	hIncrement,wIncrement=height/12,width/12 --constant for page sliding
+	curdir='' --used to move player (u,d,l,r)
+	doorBlock='' --used to block doors (u,d,l,r)
+	blockGrow=0 --index used to grow the trees foor doorBlock
+	noGo='' --used to stop player when he runs into walls (u,d,l,r)
+	nGcon='' --used to stop player when he runs into other shit. feeds into noGo (u,d,l,r)
+	dir='d' -- direction player is facing
+	mov='s1' --just counts an index when player walks to change the picture
+	mapLocale='4242' --curent location (xxyy)
+	spindex=6 --index for sword swing
 
-  --this function located in scripts/save loads the map
-  startTable()
+	--this limits the frame rate so shit doesn't break
+	min_dt = 1/30
+	next_time = love.timer.getTime()
 end
-
---this will checked if you're focused on the window
 
 function love.focus(f) gameIsPaused = not f end
-
+--scripts/player
 function love.keypressed(key)
-  --this function is in scripts/player.lua
-  curdir = curDir(key)
-  if key=='p' then gone=true end
+	if key=='space' then swingSword() end
+ 	curdir = curDir(key) --scripts/player
+	if key=='p' then gone=true love.event.quit() end --debugging purposes. deletes all the save files
 end
-
 function love.keyreleased(key)
-  --this function is in scripts/player.lua
-  curdir = curDirRel(key)
+	curdir = curDirRel(key) --scripts/player
+end
+--this is pythagorean's theorum
+function distance(p1x,p1y,p2x,p2y)
+	local xDist=p1x-p2x
+	local yDist=p1y-p2y
+	return math.sqrt((xDist^2)+(yDist^2))
 end
 
 --this function updates every second
-
 function love.update(dt)
-  if gameIsPaused then return end
-    --these functions are in scripts/player.lua
-  x,y,dir,mov = movePlayer(dt)
-  noGo = checkEdgeForest()
-  if offscreen==nil then offscreen,mapLocale = offScreen() end
+	--this is for the frame rate
+	next_time = next_time + min_dt
+	if gameIsPaused then return end
+	if spindex<6 then spindex=spindex+1 sword.rotation=sword.rotation-(math.pi/6) else sword.rotation=math.pi end --spins sword
+	--scripts/contents
+	if string.match(map[mapLocale].contains,'danger')=='danger' then itIsTrap() elseif nMTrap then noMoreTrap() end --traps player if it's a trap
+	movePlayer(dt)--scripts/player
+	playerWalk()--scripts/player
+	noGo = checkEdgeForest()--scripts/boundaries
+	if offscreen==nil then offscreen,bgx,bgy,num = offScreen() end--scripts/boundaries
+	if canSword and playerData.weapon==0 and distance(x+(w/2),y+(w/2),sword.posX,sword.posY)<width/20 then canSword=nil playerData.weapon=1 noMoreTrap() end --scripts/boundaries
 end
 
 --this draws the screen every second
 function love.draw()
-  
-  --this function is in scripts/player
-  if offscreen ~= nil then offscreen,x,y=offScreenSlide(bg1,bg2,bg3) end
+	if offscreen ~= nil then offscreen,x,y=offScreenSlide() end
 
---this sets the background image
-  love.graphics.setColor(bg1,bg2,bg3)
-  love.graphics.draw(bgImage,0,0)
-  love.graphics.draw(edgeForestBack,0,0)
+--this draws stuff behind player, draws player and draws stuff in front of player
+	drawContents(-1)
+	drawPlayer()
+	drawContents(1)
 
---this function is in scripts/player
-  mov=playerWalk()
-
---this draws the playable character
-  love.graphics.setColor(150,150,150)
-  love.graphics.draw(img,x,y,0,w/200,h/300)
-
-  --this puts trees in front of player when he's behind them
-  love.graphics.setColor(bg1,bg2,bg3)
-  love.graphics.draw(edgeForest,0,0)
+	--frame rate
+	local cur_time = love.timer.getTime()
+	if next_time <= cur_time then
+		next_time = cur_time
+		return
+	end
+	love.timer.sleep(next_time - cur_time)
 end
 
 --this is run on close of the game. Not useful yet but will be nice when we need to remind people to save
-
 function love.quit()
-  serialize (map)
-  if gone then love.filesystem.remove('map') end
-  print('Thanks for playing! Come back soon!')
+	serialize('playerData',playerData)
+	serialize ('map',map)
+	if gone then love.filesystem.remove('map') love.filesystem.remove('playerData') print('save state removed') end
+	--if map['4241']==nil and map['4243']==nil and map['4142']==nil and map['4342']==nil then love.filesystem.remove('map') end
+	print('Thanks for playing! Come back soon!')
 end
