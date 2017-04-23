@@ -19,7 +19,6 @@ function startTable()--initiates saves if one doesn't exist
 		playerData.weapon=0
 		playerData.swordCool=12
 		playerData.difici=0
-		playerData.health=3
 		mapFile = love.filesystem.newFile("playerData")
 		serialize ('playerData',playerData)
 		return startTable()
