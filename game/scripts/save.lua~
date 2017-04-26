@@ -19,36 +19,40 @@ function startTable()--initiates saves if one doesn't exist
 		playerData.weapon=0
 		playerData.swordCool=12
 		playerData.difici=0
+		playerData.health=3
 		mapFile = love.filesystem.newFile("playerData")
 		serialize ('playerData',playerData)
 		return startTable()
  	end
 end
-
 --generates details for maps
 function createMap()
 	local t={}
-	enemies={}
+	enem={}
 	if  map['4241']==nil and map['4243']==nil and map['4142']==nil and map['4342']==nil then
 		t.type='grove'
 		t.contains='dangerAlone'
   	else	
   		t.type='forest'
-		t.enemies={}
+		t.enem={}
 		if playerData.difici==1 then
-			t.enemies[1]=enemy('easy')
-			t.enemies[2]=enemy('easy')
+			t.enem[1]=enemy('easy')
+			t.enem[2]=enemy('easy')
 		elseif playerData.difici==0 then
-			t.enemies[1]=enemy('easy')
+			t.enem[1]=enemy('easy')
 			playerData.difici=1
 		end
   		t.contains='none'
   	end
   map[mapLocale]=t
 end
-
 --this saves stuff, but be careful what you feed it it isn't universal (and i don't need it to be)
 function srlz(datas)
+	if map then for i in pairs(map) do
+		map[i].enemies=nil
+		map[i].blood=nil
+		map[i].bloodI=nil
+	end end
 	local tabbb=''
 	if type(datas)=='table' then
 		tabbb='{'

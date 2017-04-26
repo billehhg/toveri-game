@@ -1,4 +1,12 @@
 --this script controls the boundaries of the page and forest
+function enBind(this)
+	local xX=width/11
+	local bLe,bRi,bTo,bBo=this.posX-this.wid/2,this.posX+this.wid/2,this.posY-this.hei/2,this.posY+this.hei/2
+	if bLe<=xX then return 'l' 
+	elseif bRi>=width-xX then return 'r'
+	elseif bTo<=height/4 then return 'u'
+	elseif bTo>=height-(height/4) then return 'd' end
+end
 function checkEdgeForest()
   local nG=nGcon
   local xX=width/11
@@ -42,7 +50,6 @@ function checkEdgeForest()
   end
   return nG
 end
-
 --this detects if player is offscreen and tracks position on metamap
 function offScreen()
   local zw = 2*(w/3)
@@ -56,7 +63,6 @@ function offScreen()
   if ((y-zh) + h) >= height then mapLocale=mapX..(mapY+1) return 'd',0,height,height/hIncrement end
   return offscreen,bgx,bgy,num
 end
-
 --this slides the screen and moves the player to the other side when players leave screen
 function offScreenSlide()
   if offscreen == 'l' then  offscreenx = offscreenx + wIncrement  end
@@ -71,7 +77,14 @@ function offScreenSlide()
   love.graphics.draw(edgeForestBack,bgx,bgy)
   num=num-1
   if num == 0 then
-    enemies={}
+	  if not map[mapLocale].enemies then
+		  map[mapLocale].enemies={}
+		  map[mapLocale].blood={}
+		  map[mapLocale].bloodI=1
+	  end
+	enemies=map[mapLocale].enemies
+	blood=map[mapLocale].blood
+	bloodI=map[mapLocale].bloodI
     bg1,bg2,bg3=bg1n,bg2n,bg3n
     blockGrow=0
     gameIsPaused=false
