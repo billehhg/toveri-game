@@ -143,7 +143,7 @@ function makeItBleed(this)
 end
 function dropShit(this)
   if this.dropIndex then
-    if distance(this.posX,this.posY,player.posX,player.posY-(w/2))<=w/2 or this.dropIndex<=0 then
+    if distance(this.posX,this.posY,player.posX,player.posY-(w/2))<=w/2 then
       if this.pic==heartDrop then
         health=health+1
         if health>playerData.health then health=playerData.health end
@@ -152,6 +152,9 @@ function dropShit(this)
     end
     this.wid,this.hei=this.wid+(this.wid/50)*math.sin(this.dropIndex),this.hei+(this.hei/50)*math.sin(this.dropIndex)
     this.dropIndex=this.dropIndex-math.pi/20
+    if this.dropIndex<=0 then
+      this.health=-1
+    end
   else
     local drop={heartDrop}
     if math.random(10)==10 then 
