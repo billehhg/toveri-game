@@ -15,6 +15,14 @@ function love.load()
   tree=love.graphics.newImage('backgroundImages/pinetree.png')
   bloody=love.graphics.newImage('enemies/blood.png')
   heartDrop=love.graphics.newImage('contents/heart.png')
+  obstacles={}
+  obstacles.rock=love.graphics.newImage('contents/rock.png')
+  obstacles.tall=love.graphics.newImage('contents/rockTall.png')
+  obstacles.cube=love.graphics.newImage('contents/rockCube.png')
+  obstacles.shroom=love.graphics.newImage('contents/shroom.png')
+  obstacles.spike=love.graphics.newImage('contents/spike.png')
+  obstacles.log=love.graphics.newImage('contents/log.png')
+  obstacles.options={'rock','tall','cube','shroom','spike','log'}
   bg1,bg2,bg3=75,160,75
   --this function located in scripts/save loads the map and player data
   startTable()
@@ -26,10 +34,10 @@ function love.load()
   sword.picHand = love.graphics.newImage('contents/swordHand.png') 
   sword.width,sword.height=sword.pic:getDimensions()
   sword.posX,sword.posY=width/2,height*.65
-  sword.wid,sword.hei=width/35,height/9
+  sword.wid,sword.hei=width/35,height/8
   sword.rotation,sword.add=math.pi,0
   --this initiates character location, size and speed
-  w, h, player.speed = (width/10)*playerData.size, (height/7)*playerData.size, width*.3*playerData.speed
+  w, h, player.speed = (width/12)*playerData.size, (height*.15)*playerData.size, width*.3*playerData.speed
   x, y =  (width/2)-(w/2), (height/2)-(h/2)
   hIncrement,wIncrement=height/12,width/12 --constant for page sliding
   player.curdir='' --used to move player (u,d,l,r)
@@ -46,13 +54,18 @@ function love.load()
   health=3
   directions={'d','l','u','r'}
 end
-function love.focus(f) gameIsPaused = not f end
+function love.focus(f) if f==true then gameIsPaused=not f end   end
 --scripts/player
 function love.keypressed(key)
   if key=='space' then swingSword(true) end
    player.curdir = curDir(key) --scripts/player
-  if key=='o' then gone=true love.event.quit( "restart") end
-  if key=='i' then love.event.quit( "restart" ) end
+  if key=='escape' or key=='p' then gameIsPaused=not gameIsPaused end
+  if gameIsPaused then
+    if key=='n' and mapLocale=='4242' then gone=true love.event.quit( "restart") end
+    if key=='r' then love.event.quit('restart') end
+    if key=='c' then gameIsPaused=false end
+    if key=='q' then love.event.quit() end
+  end
 end
 function love.keyreleased(key)
   player.curdir = curDirRel(key) --scripts/player
@@ -66,10 +79,11 @@ end
 --this function updates every second
 function love.update(dt)
   if gameIsPaused then return end
+  if health<=0 then love.event.quit('restart') end
   player.posX,player.posY=x+(w/2),y+h
-  if spindex<playerData.swordCool then if spindex<3 then swingSword() spindex=spindex+1 elseif spindex<9 then spindex=spindex+1 else sword.hei=height/9 sword.rotation=math.pi spindex=spindex+1 sword.add=0 end end
+  if spindex<playerData.swordCool then if spindex<3 then swingSword() spindex=spindex+1 elseif spindex<9 then spindex=spindex+1 else sword.hei=height/8 sword.rotation=math.pi spindex=spindex+1 sword.add=0 end end
   --scripts/contents
-  if string.match(map[mapLocale].contains,'danger')=='danger' then itIsTrap() elseif nMTrap then noMoreTrap() end --traps player if it's a trap
+  if string.match(map[mapLocale].contains,'danger')=='danger' then doorBlock='uldr' itIsTrap() elseif nMTrap then noMoreTrap() elseif doorBlock~=nil then blockGrow=1 else blockGrow=0 end --traps player if it's a trap
   if string.match(map[mapLocale].contains,'dangerAlone')=='dangerAlone' and canSword and playerData.weapon==0 and distance(x+(w/2),y+(w/2),sword.posX,sword.posY)<width/20 then canSword=nil playerData.weapon=1  noMoreTrap() end --scripts/boundaries
   movePlayer(player,dt)--scripts/player
   if map[mapLocale].enem~=nil then moveEnemies(dt) end
@@ -81,7 +95,6 @@ end
 --this draws the screen every second
 function love.draw()
   if offscreen ~= nil then offscreen,x,y=offScreenSlide() end
---thisdraws stuff behind player, draws player and draws stuff in front of player
   drawContents(-1)
   drawPlayer()
   drawContents(1)

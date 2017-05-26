@@ -1,11 +1,11 @@
 --this script controls the boundaries of the page and forest
 function enBind(this)
-	local xX=width/11
-	local bLe,bRi,bTo,bBo=this.posX-this.wid/2,this.posX+this.wid/2,this.posY-this.hei/2,this.posY+this.hei/2
-	if bLe<=xX then return 'l' 
-	elseif bRi>=width-xX then return 'r'
-	elseif bTo<=height/4 then return 'u'
-	elseif bTo>=height-(height/4) then return 'd' end
+  local xX=width/11
+  local bLe,bRi,bTo,bBo=this.posX-this.wid/2,this.posX+this.wid/2,this.posY-this.hei/2,this.posY+this.hei/2
+  if bLe<=xX then return 'l' 
+  elseif bRi>=width-xX then return 'r'
+  elseif bTo<=height/5 then return 'u'
+  elseif bTo>=height-(height/4) then return 'd' end
 end
 function checkEdgeForest()
   local nG=nGcon
@@ -77,15 +77,16 @@ function offScreenSlide()
   love.graphics.draw(edgeForestBack,bgx,bgy)
   num=num-1
   if num == 0 then
-	  if not map[mapLocale].enemies then
-		  map[mapLocale].enemies={}
-		  map[mapLocale].blood={}
-		  map[mapLocale].bloodI=1
-	  end
-	enemies=map[mapLocale].enemies
-	blood=map[mapLocale].blood
-	bloodI=map[mapLocale].bloodI
+    if not map[mapLocale].enemies then
+      map[mapLocale].enemies={}
+      map[mapLocale].blood={}
+      map[mapLocale].bloodI=1
+    end
+  enemies=map[mapLocale].enemies
+  blood=map[mapLocale].blood
+  bloodI=map[mapLocale].bloodI
     bg1,bg2,bg3=bg1n,bg2n,bg3n
+    if map[mapLocale].doorBlock then doorBlock=map[mapLocale].doorBlock else doorBlock="" end
     blockGrow=0
     gameIsPaused=false
     return nil,x+offscreenx,y+offscreeny

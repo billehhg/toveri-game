@@ -1,7 +1,7 @@
 --this controls player movement, storing which direction keys are pressed and the direction in which they are pressed.
 function curDir(n)
   if n == 'w' then    return player.curdir .. 'u'
-  elseif n == 's' then    return player.curdir .. 'd'
+  elseif n=='s' then    return player.curdir .. 'd'
   elseif n == 'a' then    return player.curdir .. 'l'
   elseif n == 'd' then    return player.curdir .. 'r'
   else return player.curdir end
@@ -108,13 +108,10 @@ function swingSword(init)
   elseif player.dir=='u' then sword.add=-1*sword.add+height/40 sword.rotation=sword.rotation-math.pi/40
   end end
 end
-function hurtMe()
-  if hurt==0 then hurt=20 health=health-.5 if health==0 then killMe() end end
+function hurtMe(this)
+  if hurt==0 then hurt=20 if this=='easy' then  health=health-.5 else health=health-1 end if health<=0 then gameIsPaused=true end end
   if hurt>16 then pRed=250 elseif hurt>12 then pRed=150 elseif hurt>8 then pRed=150 elseif hurt>4 then pRed=250 elseif hurt>0 then pRed=150 end
   hurt=hurt-1
-end
-function killMe()
-  love.event.quit('restart')
 end
 --these are the players
 function loadPlayer(whichUko)

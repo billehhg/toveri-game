@@ -4,7 +4,7 @@ function enBind(this)
   local bLe,bRi,bTo,bBo=this.posX-this.wid/2,this.posX+this.wid/2,this.posY-this.hei/2,this.posY+this.hei/2
   if bLe<=xX then return 'l' 
   elseif bRi>=width-xX then return 'r'
-  elseif bTo<=height/4 then return 'u'
+  elseif bTo<=height/6 then return 'u'
   elseif bTo>=height-(height/4) then return 'd' end
 end
 function checkEdgeForest()
@@ -86,6 +86,7 @@ function offScreenSlide()
   blood=map[mapLocale].blood
   bloodI=map[mapLocale].bloodI
     bg1,bg2,bg3=bg1n,bg2n,bg3n
+    if map[mapLocale].doorBlock then doorBlock=map[mapLocale].doorBlock else doorBlock="" end
     blockGrow=0
     gameIsPaused=false
     return nil,x+offscreenx,y+offscreeny
